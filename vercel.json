@@ -1,17 +1,21 @@
-
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "src/index.js",
-            "use": "@vercel/node"
-        }
-    ],
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/main.ts",
+      "use": "@vercel/node"
+    }
+  ],
 
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "src/index.js"
-        }
-    ]
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/main.ts"
+    }
+  ],
+
+  "env": {
+    "MONGO_CS": "mongodb://localhost:27017/mygastronomy",
+    "MONGO_DB_NAME": "mygastronomy"
+  }
 }
