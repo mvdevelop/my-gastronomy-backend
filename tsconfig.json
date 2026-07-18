@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "removeComments": true,
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types"],
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipDefaultLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "src/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "ts-node": {
+    "files": true
+  }
+}

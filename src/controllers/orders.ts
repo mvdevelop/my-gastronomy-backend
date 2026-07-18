@@ -1,4 +1,3 @@
-
 import OrdersDataAccess from '../dataAccess/orders.js';
 import { ok, serverError } from '../helpers/httpResponse.js';
 
@@ -6,7 +5,7 @@ export default class OrdersControllers {
     constructor() {
         this.dataAccess = new OrdersDataAccess();
     }
-    
+
     async getOrders() {
         try {
             const orders = await this.dataAccess.getOrder();
@@ -17,7 +16,7 @@ export default class OrdersControllers {
     }
 
     // Cópia de getOrders
-    async getOrdersByUserId(userId) {
+    async getOrdersByUserId(userId: string) {
         try {
             const orders = await this.dataAccess.getOrderByUserId(userId);
             return ok(orders);
@@ -27,7 +26,7 @@ export default class OrdersControllers {
     }
 
     // Nova função
-    async addOrder(orderData) {
+    async addOrder(orderData: any) {
         try {
             const result = await this.dataAccess.addOrder(orderData);
             return ok(result);
@@ -36,7 +35,7 @@ export default class OrdersControllers {
         }
     }
 
-    async deleteOrder(orderId) {
+    async deleteOrder(orderId: string) {
         try {
             const result = await this.dataAccess.deleteOrder(orderId);
             return ok(result);
@@ -45,7 +44,7 @@ export default class OrdersControllers {
         }
     }
 
-    async updateOrder(orderId, orderData) {
+    async updateOrder(orderId: string, orderData: any) {
         try {
             const result = await this.dataAccess.updateOrders(orderId, orderData);
             return ok(result);

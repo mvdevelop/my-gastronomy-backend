@@ -1,5 +1,133 @@
-
-.env
-package-lock.json
+# Dependencies
 node_modules
 
+# Build artifacts
+build/
+dist/
+
+# Environment variables (local)
+.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+logs
+results
+
+# Coverage directory used by many test frameworks
+coverage
+
+# Dependency directories
+node_modules/
+.libs/
+
+# TypeScript cache
+tsc_output/
+
+# Output from Jest
+jest-coverage
+
+# Temporary files
+tmp/
+.vscode
+.idea
+*.swp
+*.swo
+**/*.sw?
+
+# MacOS
+.DS_Store
+
+# Windows
+tmp/
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+
+# IDE and editor shortcuts
+.vscode/
+.idea/
+*.swp
+*.swo
+**/*.sw?
+
+# Database backups
+*.sql
+
+# Distribution folders
+dist/
+build/
+
+cargo-target/
+
+# Local backups
+*.backup
+
+# Temporary files
+*.tmp
+*.temp
+
+# Partial builds
+*.bak
+*.orig
+
+# Other
+*.log
+*.pid
+*.seed
+
+# Services
+local.yml
+
+# Secrets
+secrets*
+
+# Editor settings
+.vscode/settings.json
+.vscode/tasks.json
+
+# Local gitignore for cached files
+.gitignore_local
+
+# Notes
+notes.txt
+
+# Local SQLite databases
+sqlite_*.db
+
+# Temporary logs and databases
+*.log
+*.sqlite
+*.sqlite3
+
+# Package locks
+package-lock.json
+
+# Yarn
+yarn.lock
+
+# Others
+css/*.css
+src/css/**/*.css
+tests/**/*.test.js
+
+# Yarn 2+
+.yarn/cache/
+.yarn/attachments/
+.yarn/unplugged/
+
+# Yarn Integrity file
+s/.yarn-integrity
+
+# dotenv environment variables file
+.env*.local

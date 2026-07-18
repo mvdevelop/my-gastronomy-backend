@@ -1,12 +1,11 @@
-
-import UsersDataAccess from "../dataAccess/users.js";
+import UsersDataAccess from '../dataAccess/users.js';
 import { ok, serverError } from '../helpers/httpResponse.js';
 
 export default class UsersControllers {
     constructor() {
         this.dataAccess = new UsersDataAccess();
     }
-    
+
     async getUsers() {
         try {
             const users = await this.dataAccess.getUsers();
@@ -16,7 +15,7 @@ export default class UsersControllers {
         }
     }
 
-    async deleteUser(userId) {
+    async deleteUser(userId: string) {
         try {
             const result = await this.dataAccess.deleteUser(userId);
             return ok(result);
@@ -25,7 +24,7 @@ export default class UsersControllers {
         }
     }
 
-    async updateUser(userId, userData) {
+    async updateUser(userId: string, userData: any) {
         try {
             const result = await this.dataAccess.updateUser(userId, userData);
             return ok(result);
