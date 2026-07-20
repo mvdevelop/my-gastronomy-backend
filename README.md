@@ -70,12 +70,7 @@ my-gastronomy-backend/
 ## 🎨 Preview da API
 Nota: Como se trata de um backend, você pode testar todos os endpoints utilizando o Postman ou Insomnia. Certifique-se de enviar os headers e bodies corretos conforme as rotas definidas.
 
-## 👨‍💻 Autor
-Desenvolvido com ❤️ por mvdevelop.
-
 GitHub: @mvdevelop
-
-LinkedIn: Seu Nome Aqui
 
 ## 📄 Licença
 Este projeto está sob a licença MIT.
