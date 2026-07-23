@@ -1,12 +1,15 @@
 import UsersDataAccess from '../dataAccess/users.js';
-import { ok, serverError } from '../helpers/httpResponse.js';
+import { ok, serverError, HttpResponse } from '../helpers/httpResponse.js';
+import { IUser, UpdateUserDTO } from '../types/index.js';
 
 export default class UsersControllers {
+    private dataAccess: UsersDataAccess;
+
     constructor() {
         this.dataAccess = new UsersDataAccess();
     }
 
-    async getUsers() {
+    async getUsers(): Promise<HttpResponse<IUser[]>> {
         try {
             const users = await this.dataAccess.getUsers();
             return ok(users);
@@ -24,7 +27,7 @@ export default class UsersControllers {
         }
     }
 
-    async updateUser(userId: string, userData: any) {
+    async updateUser(userId: string, userData: UpdateUserDTO) {
         try {
             const result = await this.dataAccess.updateUser(userId, userData);
             return ok(result);

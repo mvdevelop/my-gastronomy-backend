@@ -4,7 +4,7 @@ import UsersControllers from '../controllers/users.js';
 const usersRouter = express.Router();
 const usersControllers = new UsersControllers();
 
-usersRouter.get('/', async (req: express.Request, res: express.Response) => {
+usersRouter.get('/', async (_req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await usersControllers.getUsers();
         res.status(statusCode).send({ success, statusCode, body });

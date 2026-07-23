@@ -1,167 +1,123 @@
 import { Mongo } from "../database/mongo.js";
-import { ObjectId } from "mongodb";
+import { ObjectId, InsertOneResult, DeleteResult, UpdateResult } from "mongodb";
+import { IOrder, IOrderItem, CreateOrderDTO, UpdateOrderDTO, PopulatedOrder } from '../types/index.js';
 
 const collectionName = 'orders';
 
 export default class OrdersDataAccess {
-    async getOrder(): Promise<any> {
-        const result = await Mongo.db
-            .collection(collectionName)
-            .aggregate([
-                {
-                    $lookup: {
-                        from: 'orderItems',
-                        localField: '_id',
-                        foreignField: 'orderId',
-                        as: 'orderItems'
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'userDetails'
-                    }
-                },
-                {
-                    $project: {
-                        'userDetails.password': 0,
-                        'userDetails.salt': 0,
-                    }
-                },
-                {
-                    $unwind: '$orderItems'
-                },
-                {
-                    $lookup: {
-                        from: 'plates',
-                        localField: 'orderItems.plateId',
-                        foreignField: '_id',
-                        as: 'orderItems.itemDetails'
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$_id',
-                        userDetails: { $first: '$userDetails' },
-                        orderItems: { $push: '$orderItems' },
-                        pickupStatus: { $first: '$pickupStatus' },
-                        pickupTime: { $first: '$pickupTime' }
-                    }
-                }
-            ])
-            .toArray()
+    private async aggregateOrders(matchStage?: object): Promise<PopulatedOrder[]> {
+        const pipeline: object[] = [];
 
-        return result
+        if (matchStage) {
+            pipeline.push(matchStage);
+        }
+
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'orderItems',
+                    localField: '_id',
+                    foreignField: 'orderId',
+                    as: 'orderItems'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            {
+                $project: {
+                    'userDetails.password': 0,
+                    'userDetails.salt': 0,
+                }
+            },
+            {
+                $unwind: '$orderItems'
+            },
+            {
+                $lookup: {
+                    from: 'plates',
+                    localField: 'orderItems.plateId',
+                    foreignField: '_id',
+                    as: 'orderItems.itemDetails'
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    userDetails: { $first: '$userDetails' },
+                    orderItems: { $push: '$orderItems' },
+                    pickupStatus: { $first: '$pickupStatus' },
+                    pickupTime: { $first: '$pickupTime' }
+                }
+            }
+        );
+
+        return Mongo.db
+            .collection<IOrder>(collectionName)
+            .aggregate<PopulatedOrder>(pipeline)
+            .toArray();
     }
 
-    // Cópia getOrder
-    async getOrderByUserId(userId: string): Promise<any> {
-        const result = await Mongo.db
-            .collection(collectionName)
-            .aggregate([
-                // Mudanças
-                {
-                    $match: { userId: new ObjectId(userId) }
-                },
-                {
-                    $lookup: {
-                        from: 'orderItems',
-                        localField: '_id',
-                        foreignField: 'orderId',
-                        as: 'orderItems'
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'userDetails'
-                    }
-                },
-                {
-                    $project: {
-                        'userDetails.password': 0,
-                        'userDetails.salt': 0,
-                    }
-                },
-                {
-                    $unwind: '$orderItems'
-                },
-                {
-                    $lookup: {
-                        from: 'plates',
-                        localField: 'orderItems.plateId',
-                        foreignField: '_id',
-                        as: 'orderItems.itemDetails'
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$_id',
-                        userDetails: { $first: '$userDetails' },
-                        orderItems: { $push: '$orderItems' },
-                        pickupStatus: { $first: '$pickupStatus' },
-                        pickupTime: { $first: '$pickupTime' }
-                    }
-                }
-            ])
-            .toArray()
-
-        return result
+    async getAllOrders(): Promise<PopulatedOrder[]> {
+        return this.aggregateOrders();
     }
 
-    async addOrder(orderData: any): Promise<any> {
+    async getOrdersByUserId(userId: string): Promise<PopulatedOrder[]> {
+        return this.aggregateOrders({ $match: { userId: new ObjectId(userId) } });
+    }
+
+    async addOrder(orderData: CreateOrderDTO): Promise<InsertOneResult<IOrder>> {
         const { items, ...orderDataRest } = orderData;
 
-        orderDataRest.createdAt = new Date();
-        orderDataRest.pickupStatus = 'Pending';
-        orderDataRest.userId = new ObjectId(orderDataRest.userId);
+        const orderDocument = {
+            ...orderDataRest,
+            createdAt: new Date(),
+            pickupStatus: 'Pending',
+            userId: new ObjectId(orderDataRest.userId),
+        };
 
         const newOrder = await Mongo.db
-            .collection(collectionName)
-            .insertOne(orderDataRest)
+            .collection<IOrder>(collectionName)
+            .insertOne(orderDocument);
 
         if(!newOrder.insertedId) {
             throw new Error('Order cannot be inserted.');
         }
 
-        items.map((item: any) => {
-            item.plateId = new ObjectId(item.plateId);
-            item.orderId = new ObjectId(newOrder.insertedId);
-        });
+        const orderItems: Omit<IOrderItem, '_id'>[] = items.map((item) => ({
+            plateId: new ObjectId(item.plateId),
+            orderId: new ObjectId(newOrder.insertedId),
+            quantity: item.quantity,
+        }));
 
-        const result = await Mongo.db
-            .collection('orderItems')
-            .insertMany(items)
+        await Mongo.db
+            .collection<IOrderItem>('orderItems')
+            .insertMany(orderItems);
 
-        return result
+        return newOrder;
     }
 
-    async deleteOrder(orderId: string): Promise<any> {
-
-        const itemsToDelete = await Mongo.db
-            .collection('orderItems')
+    async deleteOrder(orderId: string): Promise<{ itemsDeleted: DeleteResult; orderDeleted: DeleteResult }> {
+        const itemsDeleted = await Mongo.db
+            .collection<IOrderItem>('orderItems')
             .deleteMany({ orderId: new ObjectId(orderId) });
 
-        const orderToDelete = await Mongo.db
-            .collection(collectionName)
-            .findOneAndDelete({ _id: new ObjectId(orderId) });
+        const orderDeleted = await Mongo.db
+            .collection<IOrder>(collectionName)
+            .deleteOne({ _id: new ObjectId(orderId) });
 
-        const result = {
-            itemsToDelete,
-            orderToDelete
-        }
-
-        return result
+        return { itemsDeleted, orderDeleted };
     }
 
-    async updateOrder(orderId: string, orderData: any): Promise<any> {
+    async updateOrder(orderId: string, orderData: UpdateOrderDTO): Promise<UpdateResult> {
         const result = await Mongo.db
-            .collection(collectionName)
-            .findOneAndUpdate(
+            .collection<IOrder>(collectionName)
+            .updateOne(
                 { _id: new ObjectId(orderId) },
                 { $set: orderData }
             );

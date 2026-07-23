@@ -1,32 +1,33 @@
 import OrdersDataAccess from '../dataAccess/orders.js';
 import { ok, serverError } from '../helpers/httpResponse.js';
+import { CreateOrderDTO, UpdateOrderDTO } from '../types/index.js';
 
 export default class OrdersControllers {
+    private dataAccess: OrdersDataAccess;
+
     constructor() {
         this.dataAccess = new OrdersDataAccess();
     }
 
     async getOrders() {
         try {
-            const orders = await this.dataAccess.getOrder();
+            const orders = await this.dataAccess.getAllOrders();
             return ok(orders);
         } catch (error) {
             return serverError(error);
         }
     }
 
-    // Cópia de getOrders
     async getOrdersByUserId(userId: string) {
         try {
-            const orders = await this.dataAccess.getOrderByUserId(userId);
+            const orders = await this.dataAccess.getOrdersByUserId(userId);
             return ok(orders);
         } catch (error) {
             return serverError(error);
         }
     }
 
-    // Nova função
-    async addOrder(orderData: any) {
+    async addOrder(orderData: CreateOrderDTO) {
         try {
             const result = await this.dataAccess.addOrder(orderData);
             return ok(result);
@@ -44,9 +45,9 @@ export default class OrdersControllers {
         }
     }
 
-    async updateOrder(orderId: string, orderData: any) {
+    async updateOrder(orderId: string, orderData: UpdateOrderDTO) {
         try {
-            const result = await this.dataAccess.updateOrders(orderId, orderData);
+            const result = await this.dataAccess.updateOrder(orderId, orderData);
             return ok(result);
         } catch (error) {
             return serverError(error);

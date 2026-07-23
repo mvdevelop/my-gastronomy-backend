@@ -1,10 +1,11 @@
 import express from 'express';
 import PlatesControllers from '../controllers/plates.js';
+import { createPlateValidation, updatePlateValidation } from '../validation/platesValidation.js';
 
 const platesRouter = express.Router();
 const platesControllers = new PlatesControllers();
 
-platesRouter.get('/', async (req: express.Request, res: express.Response) => {
+platesRouter.get('/', async (_req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await platesControllers.getPlates();
         res.status(statusCode).send({ success, statusCode, body });
@@ -14,7 +15,7 @@ platesRouter.get('/', async (req: express.Request, res: express.Response) => {
     }
 });
 
-platesRouter.get('/availables/', async (req: express.Request, res: express.Response) => {
+platesRouter.get('/availables/', async (_req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await platesControllers.getAvailablePlates();
         res.status(statusCode).send({ success, statusCode, body });
@@ -24,7 +25,7 @@ platesRouter.get('/availables/', async (req: express.Request, res: express.Respo
     }
 });
 
-platesRouter.post('/', async (req: express.Request, res: express.Response) => {
+platesRouter.post('/', createPlateValidation, async (req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await platesControllers.addPlate(req.body);
         res.status(statusCode).send({ success, statusCode, body });
@@ -44,7 +45,7 @@ platesRouter.delete('/:id', async (req: express.Request, res: express.Response) 
     }
 });
 
-platesRouter.put('/:id', async (req: express.Request, res: express.Response) => {
+platesRouter.put('/:id', updatePlateValidation, async (req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await platesControllers.updatePlate(req.params.id, req.body);
         res.status(statusCode).send({ success, statusCode, body });

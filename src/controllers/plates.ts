@@ -1,14 +1,17 @@
 import PlatesDataAccess from '../dataAccess/plates.js';
 import { ok, serverError } from '../helpers/httpResponse.js';
+import { CreatePlateDTO, UpdatePlateDTO } from '../types/index.js';
 
 export default class PlatesControllers {
+    private dataAccess: PlatesDataAccess;
+
     constructor() {
         this.dataAccess = new PlatesDataAccess();
     }
 
     async getPlates() {
         try {
-            const plates = await this.dataAccess.getPlate();
+            const plates = await this.dataAccess.getAllPlates();
             return ok(plates);
         } catch (error) {
             return serverError(error);
@@ -24,7 +27,7 @@ export default class PlatesControllers {
         }
     }
 
-    async addPlate(plateData: any) {
+    async addPlate(plateData: CreatePlateDTO) {
         try {
             const result = await this.dataAccess.addPlate(plateData);
             return ok(result);
@@ -42,9 +45,9 @@ export default class PlatesControllers {
         }
     }
 
-    async updatePlate(plateId: string, plateData: any) {
+    async updatePlate(plateId: string, plateData: UpdatePlateDTO) {
         try {
-            const result = await this.dataAccess.updatePlates(plateId, plateData);
+            const result = await this.dataAccess.updatePlate(plateId, plateData);
             return ok(result);
         } catch (error) {
             return serverError(error);

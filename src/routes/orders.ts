@@ -1,10 +1,11 @@
 import express from 'express';
 import OrdersControllers from '../controllers/orders.js';
+import { createOrderValidation, updateOrderValidation } from '../validation/ordersValidation.js';
 
 const ordersRouter = express.Router();
 const ordersControllers = new OrdersControllers();
 
-ordersRouter.get('/', async (req: express.Request, res: express.Response) => {
+ordersRouter.get('/', async (_req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await ordersControllers.getOrders();
         res.status(statusCode).send({ success, statusCode, body });
@@ -24,7 +25,7 @@ ordersRouter.get('/userorders/:id', async (req: express.Request, res: express.Re
     }
 });
 
-ordersRouter.post('/', async (req: express.Request, res: express.Response) => {
+ordersRouter.post('/', createOrderValidation, async (req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await ordersControllers.addOrder(req.body);
         res.status(statusCode).send({ success, statusCode, body });
@@ -44,7 +45,7 @@ ordersRouter.delete('/:id', async (req: express.Request, res: express.Response) 
     }
 });
 
-ordersRouter.put('/:id', async (req: express.Request, res: express.Response) => {
+ordersRouter.put('/:id', updateOrderValidation, async (req: express.Request, res: express.Response) => {
     try {
         const { success, statusCode, body } = await ordersControllers.updateOrder(req.params.id, req.body);
         res.status(statusCode).send({ success, statusCode, body });
