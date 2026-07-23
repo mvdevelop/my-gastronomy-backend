@@ -1,76 +1,151 @@
+# 🍽️ MyGastronomy Backend
 
-## 🍳 My Gastronomy Backend
-Uma API robusta e eficiente desenvolvida para sustentar o ecossistema de gestão gastronômica. Este backend gerencia desde o catálogo de receitas e ingredientes até a organização de categorias, proporcionando uma base de dados sólida e escalável através do Node.js e MongoDB.
+A REST API for gastronomy management built with **TypeScript**, **Express**, and **MongoDB**. Manages dishes, ingredients, categories, users, and orders with JWT authentication and full CRUD operations.
 
-## 🚀 Funcionalidades
-Gestão de Receitas (CRUD): Controle completo para criar, listar, atualizar e remover pratos.
+## Tech Stack
 
-Categorização Inteligente: Organização de itens por tipo de cozinha, restrições alimentares ou categorias personalizadas.
+- **Runtime:** Node.js 20+
+- **Framework:** Express 4
+- **Language:** TypeScript 5 (strict mode)
+- **Database:** MongoDB 6 (native driver)
+- **Auth:** JWT + Passport.js (PBKDF2 password hashing)
+- **Validation:** Custom declarative middleware
+- **Logging:** Pino (structured JSON in production)
+- **Testing:** Vitest + MongoDB Memory Server
+- **Linting:** ESLint + Prettier
 
-Persistência de Dados: Armazenamento seguro e flexível utilizando banco de dados NoSQL.
+## Getting Started
 
-Filtros Avançados: Busca otimizada por ingredientes, tempo de preparo ou dificuldade.
+### Prerequisites
 
-Tratamento de Exceções: Sistema de respostas padronizadas para erros, facilitando o consumo pelo front-end.
+- Node.js 18+
+- MongoDB (local or Atlas)
 
-Segurança de Dados: (Se implementado) Proteção de rotas e hashing de informações sensíveis.
+### Installation
 
-## 🛠️ Tecnologias Utilizadas
-Node.js: Ambiente de execução JavaScript assíncrono para o servidor.
-
-Express.js: Framework minimalista e flexível para criação de rotas e middlewares.
-
-MongoDB: Banco de dados NoSQL orientado a documentos para alta escalabilidade.
-
-Mongoose: ODM (Object Data Modeling) para modelagem e validação de dados.
-
-Dotenv: Gerenciamento seguro de variáveis de ambiente.
-
-CORS: Configuração de permissões de acesso para integração com o Front-end.
-
-## 📦 Como rodar o projeto
-Clone o repositório:
-
-Bash
-
+```bash
 git clone https://github.com/mvdevelop/my-gastronomy-backend.git
 cd my-gastronomy-backend
-Instale as dependências:
-
-Bash
-
 npm install
-Configure as Variáveis de Ambiente: Crie um arquivo .env na raiz do projeto e adicione sua string de conexão:
+```
 
-Snippet de código
+### Environment Variables
 
-PORT=5000
-MONGO_URI="SUA_URL_DO_MONGODB_ATLAS_OU_LOCAL"
-Inicie o servidor:
+Copy `.env.example` to `.env` and configure:
 
-Bash
+```bash
+cp .env.example .env
+```
 
-npm run dev # ou npm start
-A API estará rodando em: http://localhost:5000
+| Variable | Description | Default |
+|---|---|---|
+| `MONGO_CS` | MongoDB connection string | `mongodb://localhost:27017/mygastronomy` |
+| `MONGO_DB_NAME` | Database name | `mygastronomy` |
+| `PORT` | Server port | `3000` |
+| `JWT_SECRET` | JWT signing secret | `change-me-in-production` |
+| `CORS_ORIGIN` | Allowed CORS origin | `*` |
+| `RATE_LIMIT` | Requests per minute | `100` |
+| `LOG_LEVEL` | Pino log level | `info` |
 
-## 📂 Estrutura de Pastas
-Plaintext
+### Running
 
-my-gastronomy-backend/
-├── src/
-│   ├── config/      # Configurações de banco de dados e ambiente
-│   ├── controllers/ # Lógica de processamento das requisições
-│   ├── models/      # Esquemas de dados (Mongoose Models)
-│   ├── routes/      # Definição dos caminhos e verbos da API
-│   ├── middlewares/ # Filtros de validação e segurança
-│   └── app.js       # Ponto de entrada e configuração do Express
-├── .env             # Variáveis de ambiente (não enviado ao git)
-└── package.json     # Scripts e dependências
+```bash
+npm run dev          # Development with hot reload
+npm run build        # Compile TypeScript
+npm start            # Run compiled JS
+```
 
-## 🎨 Preview da API
-Nota: Como se trata de um backend, você pode testar todos os endpoints utilizando o Postman ou Insomnia. Certifique-se de enviar os headers e bodies corretos conforme as rotas definidas.
+## API Endpoints
 
-GitHub: @mvdevelop
+All routes are prefixed with `/api/v1`.
 
-## 📄 Licença
-Este projeto está sob a licença MIT.
+### Public Routes
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/health` | Health check (pings MongoDB) |
+| `POST` | `/auth/signup` | Register a new user |
+| `POST` | `/auth/login` | Authenticate and get JWT |
+
+### Protected Routes (require `Authorization: Bearer <token>`)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/users` | List all users |
+| `PUT` | `/users/:id` | Update a user |
+| `DELETE` | `/users/:id` | Delete a user |
+| `GET` | `/plates` | List all plates |
+| `GET` | `/plates/availables` | List available plates |
+| `POST` | `/plates` | Create a plate |
+| `PUT` | `/plates/:id` | Update a plate |
+| `DELETE` | `/plates/:id` | Delete a plate |
+| `GET` | `/orders` | List all orders (aggregated with user + items) |
+| `GET` | `/orders/userorders/:id` | List orders by user ID |
+| `POST` | `/orders` | Create an order with items |
+| `PUT` | `/orders/:id` | Update order status |
+| `DELETE` | `/orders/:id` | Delete order and its items |
+
+## Project Structure
+
+```
+src/
+├── __tests__/           # Unit and integration tests
+│   ├── dataAccess/      # MongoDB data access tests
+│   ├── helpers/         # HTTP response helper tests
+│   └── middleware/      # Auth and validation middleware tests
+├── auth/                # Authentication routes (signup, login)
+├── controllers/         # Business logic layer
+├── dataAccess/          # MongoDB query layer
+├── database/            # MongoDB connection singleton
+├── helpers/             # HTTP response factories
+├── middleware/           # Auth, validation, error handler, logger
+├── routes/              # Express route definitions
+├── types/               # TypeScript interfaces and DTOs
+├── utils/               # Logger and utilities
+├── validation/          # Route validation rules
+└── index.ts             # Application entry point
+```
+
+## Testing
+
+```bash
+npm test               # Run all tests
+npm run test:watch     # Watch mode
+npm run test:coverage  # Coverage report
+```
+
+Tests use **MongoDB Memory Server** — no real database needed.
+
+## Code Quality
+
+```bash
+npm run lint           # Check for lint errors
+npm run lint:fix       # Auto-fix lint errors
+npm run format         # Format with Prettier
+npm run format:check   # Check formatting
+npm run typecheck      # TypeScript type checking
+```
+
+## Docker
+
+```bash
+docker build -t mygastronomy .
+docker run -e MONGO_CS=mongodb://host.docker.internal:27017/mygastronomy -p 3000:3000 mygastronomy
+```
+
+## CI/CD
+
+GitHub Actions runs on every push and PR to `main`:
+- Type checking
+- Linting
+- Format verification
+- Tests (Node 18 + 20)
+- Build
+
+## License
+
+ISC
+
+---
+
+GitHub: [@mvdevelop](https://github.com/mvdevelop)
