@@ -1,6 +1,9 @@
 import { Mongo } from "../database/mongo.js";
 import { ObjectId } from "mongodb";
 import crypto from 'crypto';
+import { promisify } from 'util';
+
+const pbkdf2Async = promisify(crypto.pbkdf2);
 
 const collectionName = 'users';
 
@@ -25,33 +28,18 @@ export default class UsersDataAccess {
     async updateUser(userId: string, userData: any): Promise<any> {
         if(userData.password) {
             const salt = crypto.randomBytes(16);
+            const hashedPassword = await pbkdf2Async(userData.password, salt, 310000, 16, 'sha256');
 
-            crypto.pbkdf2(userData.password, salt, 310000, 16, 'sha256', async (error: NodeJS.ErrnoException | null, hashedPassword: Buffer) => {
-                if(error) {
-                    throw new Error('Error during hashing password');
-                }
-
-                userData = { ...userData, password: hashedPassword, salt }
-
-                const result = await Mongo.db
-                    .collection(collectionName)
-                    .findOneAndUpdate(
-                        { _id: new ObjectId(userId) },
-                        { $set: userData }
-                    );
-
-                return result
-            });
-
-        } else {
-            const result = await Mongo.db
-                .collection(collectionName)
-                .findOneAndUpdate(
-                    { _id: new ObjectId(userId) },
-                    { $set: userData }
-                );
-
-            return result
+            userData = { ...userData, password: hashedPassword, salt };
         }
+
+        const result = await Mongo.db
+            .collection(collectionName)
+            .findOneAndUpdate(
+                { _id: new ObjectId(userId) },
+                { $set: userData }
+            );
+
+        return result;
     }
 }

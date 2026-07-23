@@ -12,14 +12,13 @@ export const ok = <T>(body: T): HttpResponse<T> => {
     };
 };
 
-export const serverError = <T>(error: any): HttpResponse<T> => {
+export const serverError = <T>(error: unknown): HttpResponse<T> => {
     console.error(error);
     return {
         success: false,
         statusCode: 500,
         body: {
-            message: 'Internal server error',
-            error
+            message: 'Internal server error'
         } as T
     };
 };

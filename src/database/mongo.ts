@@ -1,14 +1,14 @@
 import { MongoClient, Db } from "mongodb";
 
 export class Mongo {
-    private static db: Db;
+    private static _db: Db | null = null;
 
     static async connect({ mongoConnectionString, mongoDbName }: { mongoConnectionString: string, mongoDbName: string }): Promise<string> {
         try {
             const client = new MongoClient(mongoConnectionString);
             await client.connect();
             const db = client.db(mongoDbName);
-            this.db = db;
+            this._db = db;
             console.log("Connected to MongoDB");
             return "Database connection established";
         } catch (error) {
@@ -18,13 +18,9 @@ export class Mongo {
     }
 
     static get db(): Db {
-        if (!this.db) {
+        if (!this._db) {
             throw new Error("Database not connected. Call Mongo.connect() first.");
         }
-        return this.db;
-    }
-
-    static set db(value: Db) {
-        this.db = value;
+        return this._db;
     }
 }

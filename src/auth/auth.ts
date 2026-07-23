@@ -10,6 +10,8 @@ const collectionName = 'users';
 
 const authRouter = express.Router();
 
+const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
+
 passport.use(new LocalStrategy({ usernameField: 'email' }, async (email: string, password: string, callback: any) => {
     const user = await Mongo.db
         .collection(collectionName)
@@ -31,9 +33,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email: string,
             return callback(null, false);
         }
 
-        const { password, salt, ...rest } = user;
+        const { password: _p, salt: _s, ...safeUser } = user;
 
-        return callback(null, rest);
+        return callback(null, safeUser);
     });
 }));
 
@@ -43,9 +45,9 @@ authRouter.post('/signup', async(req: Request, res: Response) => {
         .findOne({ email: req.body.email });
 
     if(checkUser) {
-        return res.status(500).send({
+        return res.status(409).send({
             success: false,
-            statusCode: 500,
+            statusCode: 409,
             body: {
                 text: 'User already exists!',
             }
@@ -61,7 +63,6 @@ authRouter.post('/signup', async(req: Request, res: Response) => {
                 statusCode: 500,
                 body: {
                     text: 'Error on crypto password!',
-                    err: error,
                 }
             });
         }
@@ -80,7 +81,16 @@ authRouter.post('/signup', async(req: Request, res: Response) => {
                 .collection(collectionName)
                 .findOne({ _id: new ObjectId(result.insertedId) })
 
-            const token = jwt.sign(user, 'secret');
+            if(!user) {
+                return res.status(500).send({
+                    success: false,
+                    statusCode: 500,
+                    body: { text: 'Failed to retrieve user after creation.' }
+                });
+            }
+
+            const { password: _p, salt: _s, ...safeUser } = user;
+            const token = jwt.sign(safeUser, JWT_SECRET);
 
             return res.send({
                 success: true,
@@ -88,9 +98,15 @@ authRouter.post('/signup', async(req: Request, res: Response) => {
                 body: {
                     text: 'User registered correctly!',
                     token,
-                    user,
+                    user: safeUser,
                     logged: true
                 }
+            });
+        } else {
+            return res.status(500).send({
+                success: false,
+                statusCode: 500,
+                body: { text: 'Failed to create user.' }
             });
         }
     });
@@ -104,22 +120,21 @@ authRouter.post('/login', (req: Request, res: Response) => {
                 statusCode: 500,
                 body: {
                     text: 'Error during authentication.',
-                    error
                 }
             });
         }
 
         if(!user) {
-            return res.status(400).send({
+            return res.status(401).send({
                 success: false,
-                statusCode: 400,
+                statusCode: 401,
                 body: {
                     text: 'Credentials are not correct',
                 }
             });
         }
 
-        const token = jwt.sign(user, 'secret');
+        const token = jwt.sign(user, JWT_SECRET);
         return res.status(200).send({
             success: true,
             statusCode: 200,
