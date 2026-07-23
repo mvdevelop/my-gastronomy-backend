@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from '../utils/logger.js';
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
-    console.error(`[${new Date().toISOString()}] ${req.method} ${req.path}:`, err.message);
+    logger.error({ method: req.method, path: req.path, message: err.message }, 'Unhandled error');
 
     if (err instanceof SyntaxError && 'body' in err) {
         res.status(400).json({

@@ -1,3 +1,5 @@
+import logger from '../utils/logger.js';
+
 export interface HttpResponse<T> {
     success: boolean;
     statusCode: number;
@@ -13,7 +15,7 @@ export const ok = <T>(body: T): HttpResponse<T> => {
 };
 
 export const serverError = <T>(error: unknown): HttpResponse<T> => {
-    console.error(error);
+    logger.error(error);
     return {
         success: false,
         statusCode: 500,

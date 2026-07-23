@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { validate } from '../../middleware/validate.js';
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
 
 function createMockReq(body: Record<string, unknown>) {
     return { body } as Request;

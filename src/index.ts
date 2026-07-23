@@ -12,6 +12,7 @@ import healthRouter from './routes/health.js';
 import { authenticate } from './middleware/authenticate.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import logger from './utils/logger.js';
 
 config();
 
@@ -50,7 +51,7 @@ async function main () {
         mongoConnectionString: process.env.MONGO_CS!,
         mongoDbName: process.env.MONGO_DB_NAME!
     });
-    console.log(mongoConnection);
+    logger.info(mongoConnection);
 
     // API v1 routes
     app.use('/api/v1/health', healthRouter);
@@ -63,14 +64,14 @@ async function main () {
     app.use(errorHandler);
 
     const server = app.listen(port, () => {
-        console.log(`Server running on: http://localhost:${port}`);
+        logger.info(`Server running on: http://localhost:${port}`);
     });
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
-        console.log('SIGTERM received, shutting down gracefully');
+        logger.info('SIGTERM received, shutting down gracefully');
         server.close(() => {
-            console.log('Server closed');
+            logger.info('Server closed');
             process.exit(0);
         });
     });

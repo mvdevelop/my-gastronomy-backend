@@ -1,4 +1,5 @@
 import { MongoClient, Db } from "mongodb";
+import logger from '../utils/logger.js';
 
 export class Mongo {
     private static _db: Db | null = null;
@@ -9,10 +10,10 @@ export class Mongo {
             await client.connect();
             const db = client.db(mongoDbName);
             this._db = db;
-            console.log("Connected to MongoDB");
+            logger.info('Connected to MongoDB');
             return "Database connection established";
         } catch (error) {
-            console.error("MongoDB connection error:", error);
+            logger.error({ err: error }, 'MongoDB connection error');
             throw error;
         }
     }

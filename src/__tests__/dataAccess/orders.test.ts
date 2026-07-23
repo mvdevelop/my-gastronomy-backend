@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { ObjectId } from 'mongodb';
 import { Mongo } from '../../database/mongo.js';
 import OrdersDataAccess from '../../dataAccess/orders.js';
 

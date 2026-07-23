@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import jwt from 'jsonwebtoken';
 import { authenticate } from '../../middleware/authenticate.js';
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
